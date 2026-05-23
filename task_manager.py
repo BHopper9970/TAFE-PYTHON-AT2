@@ -170,7 +170,7 @@ low, medium or high
                 lines.append('priority: high')
                 break
             else:
-                print('Error: invalid pr' -',iority')
+                print('Error: invalid priority')
         
         # sets completion to incomplete
         lines.append('status: incomplete')
@@ -187,6 +187,7 @@ low, medium or high
     print_options()
 
 
+# list all tasks
 def list_tasks():
     clear_term()
     print('\nTask list:\n')
@@ -210,6 +211,7 @@ def list_tasks():
     print_options()
 
 
+# complete a given task
 def complete_task():
     clear_term()
     print('\nTasks:\n')
@@ -272,6 +274,7 @@ complete or incomplete
     print_options()
 
 
+# deletes a given task
 def delete_task():
     clear_term()
     print('\nTasks:\n')
@@ -306,10 +309,15 @@ def delete_task():
             
             # check if user is sure before deleting task
             while True:
-                del_confirm = input(f'\nAre you sure you want to delete {task_name}? (PERMENENT) (yes/no)')
+                del_confirm = input(f'\nAre you sure you want to delete {task_name}? (PERMENENT) (yes/no) ')
                 if del_confirm == 'yes':
                     os.remove(f'{task_dir}{task_name}.task')
                     print(f'Task: {task_name} deleted')
+                    if task_name == 'System32':
+                        print('OH NO!')
+                    # waits for user input (allows user to see what was deleted)
+                    input('(enter to continue)')
+                    print_options()
                     return
                 elif del_confirm == 'no':
                     print_options()
@@ -327,6 +335,7 @@ def delete_task():
             print('\nError: task does not exist\n')
 
 
+# delete all tasks marked complete
 def delete_complete():
     clear_term()
     print('\nTasks:\n')
@@ -342,19 +351,26 @@ def delete_complete():
             lines = task_file.readlines()
             print(' -', lines[0].strip() + ',', lines[3].removeprefix('status: '))
     
-     # check if user is sure before deleting task
+     # check if user is sure before deleting tasks
     while True:
         del_confirm = input(f'Are you sure you want to delete all completed tasks? (PERMENENT) (yes/no) ')
         if del_confirm == 'yes':
             for task in files:
                 with open(task, 'r') as task_file:
                     lines = task_file.readlines()
+
+                # if status is complete, delete
                 if lines[3] == 'status: complete\n':
                     os.remove(task)
                     print(f'Task: {task.removesuffix('.task').removeprefix('Tasks/')} deleted')
+                    if task.removesuffix('.task').removeprefix('Tasks/') == 'System32':
+                        print('OH NO!')
+
+                # if not, skip it
                 else:
                     continue
-            # waits for user input
+            
+            # waits for user input (allows user to see what was deleted)
             input('(enter to continue)')
             print_options()
             return
