@@ -22,19 +22,38 @@ import readline
 from datetime import date
 
 
-
 # Makes list of all task files in the folder
 task_dir = './Tasks/'
 task_list = glob.glob(f'{task_dir}*.task')
 
 
-# imput with default text written by https://stackoverflow.com/users/56338/sth
+# input with default text written by https://stackoverflow.com/users/56338/sth
 def input_default(prompt, prefill=''):
-   readline.set_startup_hook(lambda: readline.insert_text(prefill).strip())
-   try:
-      return input(prompt)  # or raw_input in Python 2
-   finally:
+    readline.set_startup_hook(lambda: readline.insert_text(prefill).strip())
+    try:
+        return input(prompt)  # or raw_input in Python 2
+    finally:
       readline.set_startup_hook()
+
+
+# clears the terminal window
+def clear_term():
+    print("\033[H\033[J", end="")
+
+
+# prints the main UI options
+def print_options():
+    clear_term()
+    print('''
+Please choose an option:
+
+a: add a task or edit an existing task
+l: list all tasks
+c: mark a task as complete
+d: delete a task
+d-all: delete all completed tasks
+q: quit
+    ''')
 
 
 # runs specified option
@@ -53,7 +72,9 @@ def do_option(option):
 
 # add task to manager
 def add_task():
+    clear_term()
     #gets task name
+    print('(enter to exit)')
     task_name = input('\nEnter task name: ')
 
     # if task already exists:
@@ -72,7 +93,7 @@ low, medium or high
         ''')
         
         while True:
-            priority = input('Priority: ')
+            priority = input_default('Priority: ', lines[2].removeprefix('priority: ').strip())
             if priority == 'low':
                 lines[2] = 'priority: low\n'
                 break
@@ -95,7 +116,7 @@ complete or incomplete
         ''')
 
         while True:
-            priority = input('Status: ')
+            priority = input_default('Status: ', lines[3].removeprefix('status: ').strip())
             if priority == 'incomplete':
                 lines[3] = 'status: incomplete\n'
                 break
@@ -108,13 +129,17 @@ complete or incomplete
                 print('Error: invalid status')
         
         # edits description
-        description = input_default('\nDescription: ', lines[4].removeprefix('description: '))
+        description = input_default('\nDescription: ', lines[4].removeprefix('description: ').strip())
         lines[4] = f'description: {description}'
 
         # writes lines[] to task file
         with open(f'{task_dir}{task_name}.task', 'w') as task_file:
             for L in lines:
                 task_file.write(f'{L}')
+
+    # exit function
+    elif task_name == '':
+        return
     
     # if task doesn't exist:
     else:
@@ -145,13 +170,13 @@ low, medium or high
                 lines.append('priority: high')
                 break
             else:
-                print('Error: invalid priority')
+                print('Error: invalid pr' -',iority')
         
         # sets completion to incomplete
         lines.append('status: incomplete')
 
         # sets description
-        description = input('Description: ')
+        description = input('\nDescription: ')
         lines.append(f'description: {description}')
 
         # writes lines[] to task file
@@ -159,21 +184,11 @@ low, medium or high
             for L in lines:
                 task_file.write(f'{L}\n')
 
-    # prints new option selecter
-    print('''
-Please choose an option:
-
-a: add a task or edit an existing task
-l: list all tasks
-c: mark a task as complete
-d: delete a task
-d-all: delete all completed tasks
-q: quit
-    ''')
-    return
+    print_options()
 
 
 def list_tasks():
+    clear_term()
     print('\nTask list:\n')
 
     # reads all task file names from ./Tasks into files[]
@@ -192,22 +207,12 @@ def list_tasks():
     # waits for user input
     input('(enter to continue)')
 
-    # prints new option selecter
-    print('''
-Please choose an option:
+    print_options()
 
-a: add a task or edit an existing task
-l: list all tasks
-c: mark a task as complete
-d: delete a task
-d-all: delete all completed tasks
-q: quit
-    ''')
-    return
 
 def complete_task():
+    clear_term()
     print('\nTasks:\n')
-
     # reads all task file names from ./Tasks into files[]
     files = glob.glob('Tasks/*.task')
     
@@ -217,17 +222,25 @@ def complete_task():
         # reads and prints the task name of each task
         with open(task, 'r') as task_file:
             lines = task_file.readlines()
-            print(lines[0].strip() + ',', lines[3].removeprefix('status: '))
+            print(' -', lines[0].strip() + ',', lines[3].removeprefix('status: '))
                   
     # gets task name
     while True:
-        task_name = input('Task name: ')
+        print('(enter to exit)')
+        task_name = input('Task to complete: ')
 
         # reads task into lines[]
         if os.path.isfile(f'{task_dir}{task_name}.task'):
             with open(f'{task_dir}{task_name}.task', 'r') as task_file:
                 lines = task_file.readlines()
             break
+
+        # exits program
+        elif task_name == '':
+            print_options()
+            return
+        
+        # task doesn't exist
         else:
             print('Error: task does not exist')
     
@@ -246,30 +259,114 @@ complete or incomplete
             lines[3] = 'status: complete\n'
             break
         elif priority == '':
-            break
+            print_options()
+            return
         else:
             print('Error: invalid status')
     
-    # writes lines[] to task file
-        with open(f'{task_dir}{task_name}.task', 'w') as task_file:
-            for L in lines:
-                task_file.write(f'{L}')
+# writes lines[] to task file
+    with open(f'{task_dir}{task_name}.task', 'w') as task_file:
+        for L in lines:
+            task_file.write(f'{L}')
     
-    # prints new option selecter
-    print('''
-Please choose an option:
+    print_options()
 
-a: add a task or edit an existing task
-l: list all tasks
-c: mark a task as complete
-d: delete a task
-d-all: delete all completed tasks
-q: quit
-    ''')
-    return
+
+def delete_task():
+    clear_term()
+    print('\nTasks:\n')
+
+    # reads all task file names from ./Tasks into files[]
+    files = glob.glob('Tasks/*.task')
+    
+    # for each task:
+    for task in files:
+
+        # reads and prints the task name of each task
+        with open(task, 'r') as task_file:
+            lines = task_file.readlines()
+            print(' -', lines[0].strip() + ',', lines[3].removeprefix('status: '))
+
+    # deletes task            
+    while True:
+
+        # gets task name
+        print('(enter to exit)')
+        task_name = input('Task to delete: ')
+
+        # if task exists:
+        if os.path.isfile(f'{task_dir}{task_name}.task'):
+            
+            # reads task into lines[] and prints the task
+            print()
+            with open(f'{task_dir}{task_name}.task', 'r') as task_file:
+                lines = task_file.readlines()
+                for L in lines:
+                    print(L.strip())
+            
+            # check if user is sure before deleting task
+            while True:
+                del_confirm = input(f'\nAre you sure you want to delete {task_name}? (PERMENENT) (yes/no)')
+                if del_confirm == 'yes':
+                    os.remove(f'{task_dir}{task_name}.task')
+                    print(f'Task: {task_name} deleted')
+                    return
+                elif del_confirm == 'no':
+                    print_options()
+                    return
+                else:
+                    print('\nError: not valid response')
+        
+        # exits function
+        elif task_name == '':
+            print_options()
+            return
+        
+        # task doesn't exist
+        else:
+            print('\nError: task does not exist\n')
+
+
+def delete_complete():
+    clear_term()
+    print('\nTasks:\n')
+
+    # reads all task file names from ./Tasks into files[]
+    files = glob.glob('Tasks/*.task')
+    
+    # for each task:
+    for task in files:
+
+        # reads and prints the task name of each task
+        with open(task, 'r') as task_file:
+            lines = task_file.readlines()
+            print(' -', lines[0].strip() + ',', lines[3].removeprefix('status: '))
+    
+     # check if user is sure before deleting task
+    while True:
+        del_confirm = input(f'Are you sure you want to delete all completed tasks? (PERMENENT) (yes/no) ')
+        if del_confirm == 'yes':
+            for task in files:
+                with open(task, 'r') as task_file:
+                    lines = task_file.readlines()
+                if lines[3] == 'status: complete\n':
+                    os.remove(task)
+                    print(f'Task: {task.removesuffix('.task').removeprefix('Tasks/')} deleted')
+                else:
+                    continue
+            # waits for user input
+            input('(enter to continue)')
+            print_options()
+            return
+        elif del_confirm == 'no':
+            print_options()
+            return
+        else:
+            print('\nError: not valid response')
 
 
 # Welcome message
+clear_term()
 print('''
 Welcome to Task Manager
 
@@ -281,7 +378,7 @@ c: mark a task as complete
 d: delete a task
 d-all: delete all completed tasks
 q: quit
-''')
+    ''')
 
 # Valid options
 valid_options = ('a', 'l', 'c', 'd', 'd-all', 'q')
