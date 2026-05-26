@@ -1,3 +1,7 @@
 ### AT2 ###
 #task files
 *.task
+#contact files
+*.cont
+#inventory files
+.inv
