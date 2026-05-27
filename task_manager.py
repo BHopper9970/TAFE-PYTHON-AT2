@@ -381,6 +381,9 @@ def delete_complete():
             print('\nError: not valid response')
 
 
+if not os.path.exists(task_dir):
+    os.mkdir(task_dir)
+
 # Welcome message
 clear_term()
 print('''

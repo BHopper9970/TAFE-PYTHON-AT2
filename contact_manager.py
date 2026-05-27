@@ -18,7 +18,6 @@ line 3: 'attachment' (family or friend)
 import os
 import glob
 import readline
-from datetime import date
 
 
 # Makes list of all cont files in the folder
@@ -289,6 +288,10 @@ def delete_cont():
             print('\nError: cont does not exist\n')
 
 
+# Creates cont folder if it doesn't exist
+if not os.path.exists(cont_dir):
+    os.mkdir(cont_dir)
+
 # Welcome message
 clear_term()
 print('''
@@ -296,7 +299,7 @@ Welcome to Contact Manager
 
 Please choose an option:
 
-a: add a contact or edit an existing cont
+a: add a contact or edit an existing contact
 l: list all contacts
 d: delete a contact
 q: quit
