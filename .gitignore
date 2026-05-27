@@ -3,5 +3,5 @@
 *.task
 #contact files
 *.cont
-#inventory files
-.inv
+#item files
+*.item

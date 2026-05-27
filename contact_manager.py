@@ -222,9 +222,40 @@ def list_conts():
             print()
 
     # waits for user input
-    input('(enter to continue)')
+    while True:
+        list_input = input('(enter to continue, f for family, b for friends)')
 
-    print_options()
+        # if input: f, print all family conts
+        if list_input == 'f':
+            clear_term()
+            for cont in files:
+
+                # reads and prints each line in cont if family
+                with open(cont, 'r') as cont_file:
+                    lines = cont_file.readlines()
+                    if lines[3] != 'attachment: Family\n':
+                        continue
+                    for L in lines:
+                        print(L.strip())
+                    print()
+        
+         # if input: b, print all friend conts
+        elif list_input == 'b':
+            clear_term()
+            for cont in files:
+
+                # reads and prints each line in cont if friend
+                with open(cont, 'r') as cont_file:
+                    lines = cont_file.readlines()
+                    if lines[3] != 'attachment: Friend\n':
+                        continue
+                    for L in lines:
+                        print(L.strip())
+                    print()
+        else:
+            print_options()
+            return
+        
 
 
 # deletes a given cont
