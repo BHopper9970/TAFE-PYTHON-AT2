@@ -22,7 +22,6 @@ import readline
 
 # Makes list of all cont files in the folder
 cont_dir = './Contacts/'
-cont_list = glob.glob(f'{cont_dir}*.cont')
 
 
 # input with default text written by https://stackoverflow.com/users/56338/sth
@@ -85,6 +84,15 @@ Enter the new phone number of the contact:
         
         while True:
             phone_number = input_default('Phone number: ', lines[1].removeprefix('number: ').strip())
+
+            # checks if phone number is a number
+            try:
+                tryint = int(phone_number)
+            except:
+                print('Error: not a number')
+                continue
+
+            # checks if phone number is too short, too long or correct length
             if phone_number == '':
                 break
             elif len(phone_number) == 10:
@@ -151,6 +159,15 @@ Enter the phone number of the contact:
         
         while True:
             phone_number = input('Phone number: ')
+
+            # checks if phone number is a number
+            try:
+                tryint = int(phone_number)
+            except:
+                print('Error: not a number')
+                continue
+
+            # checks if phone number is too short, too long or correct length
             if phone_number == '':
                 lines.append('number: ')
                 break
@@ -223,7 +240,7 @@ def list_conts():
 
     # waits for user input
     while True:
-        list_input = input('(enter to continue, f for family, b for friends)')
+        list_input = input('(enter to continue, f for family, b for friends) ')
 
         # if input: f, print all family conts
         if list_input == 'f':
