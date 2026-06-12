@@ -80,14 +80,21 @@ def add_or_edit_cont():
         files = glob.glob('Contacts/*.cont')
         while True:
             edit_or_add = input('do you want to edit the existing contact or add another? (a for add, e for edit) ')
+
+            # enters edit function
             if edit_or_add == 'e':
                 edit_cont(cont_name)
                 break
+
+            # enters add function, adding a -num at the end depending on how many duplicates there already are
             elif edit_or_add == 'a':
+                # if already has a -num
                 if cont_name[-1].isdigit() and cont_name[-2] == '-':
                     while f'Contacts/{cont_name}.cont' in files:
                         cont_name = cont_name[:-1] + str(int(cont_name[-1]) + 1)
                     add_cont(cont_name)
+                
+                # if not, add a -num and increment it until it is unique
                 else:
                     cont_name = cont_name + '-1'
                     while f'Contacts/{cont_name}.cont' in files:
@@ -149,7 +156,7 @@ Enter the Email:
     email = input('Email: ')
     lines.append(f'email: {email}')
     
-    # edits attachment
+    # sets attachment
     print('''
 Enter the attachment:
 Family or Friend
@@ -351,7 +358,7 @@ def delete_cont():
             
             # check if user is sure before deleting cont
             while True:
-                del_confirm = input(f'\nAre you sure you want to delete {cont_name}? (PERMENENT) (enter to exit) (yes/no)')
+                del_confirm = input(f'\nAre you sure you want to delete {cont_name}? (PERMENENT) (yes/no) ')
                 if del_confirm == 'yes':
                     os.remove(f'{cont_dir}{cont_name}.cont')
                     print(f'Contact: {cont_name} deleted')
